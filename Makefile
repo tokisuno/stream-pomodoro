@@ -1,5 +1,5 @@
 main:
-	gcc main.c -o pomodoro -lraylib
+	gcc main.c -lraylib
 
 clean:
-	rm -rf main
+	rm -rf a.out
