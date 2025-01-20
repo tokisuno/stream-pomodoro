@@ -8,8 +8,14 @@
  * + Break runs for allotted amount of time
  * + Set keys similar to tomatoshell to control the program when focused
  * + MM:SS time format
+ *
  * Features to maybe add:
  * + Streamer mode (sets background to green perma for chroma key)
+ *
+ * Remaps:
+ *  Mouse1 -> Next session
+ *  Mouse2 -> Previous session
+ *  r      -> Reset timer
  */
 
 // Screen states
