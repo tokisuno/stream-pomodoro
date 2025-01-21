@@ -12,16 +12,13 @@
  * Features to maybe add:
  * + Streamer mode (sets background to green perma for chroma key)
  *
- * Remaps:
- *  Mouse1 -> Next session
- *  Mouse2 -> Previous session
- *  r      -> Reset timer
  */
 
 // Screen states
 typedef enum GameScreen {
-    MAIN,
+    STUDY_WAIT,
     STUDY,
+    BREAK_WAIT,
     BREAK
 } GameScreen;
 
@@ -38,41 +35,48 @@ int main(void)
     InitWindow(SCREEN_W, SCREEN_H, "pomodoro");
     InitAudioDevice();
 
+    Image image = LoadImage("resources/never_give_up.jpg");
+    Texture2D inspo = LoadTextureFromImage(image);
+    UnloadImage(image);
+
     Sound session_begin = LoadSound("resources/menu.ogg");
-    SetSoundVolume(session_begin, 0.7f);
-
     Sound session_end = LoadSound("resources/ping.ogg");
-    SetSoundVolume(session_end, 0.7f);
-
     Sound bonk = LoadSound("resources/bonk.ogg");
 
-    SetExitKey(KEY_NULL); // makes sure you don't accidentally hit esc and close the program
+    SetSoundVolume(session_begin, 0.7f);
+    SetSoundVolume(session_end, 0.7f);
+    SetSoundVolume(session_end, 0.8f);
+
+    struct t_time time;
+
+    bool sound_played = false;
 
     int framesCounter = 0;
-    Font fontTtf = LoadFontEx("resources/PixAntiqua.ttf", 48, 0, 250);
-    GameScreen currentScreen = MAIN;
-
     int study_mins = STUDY_TIMER;
     int break_mins = BREAK_TIMER;
     int session_counter = 0;
-    struct t_time time;
-    bool sound_played = false;
+
+    SetExitKey(KEY_NULL); // makes sure you don't accidentally hit esc and close the program
+
+    Font fontTtf = LoadFontEx("resources/PixAntiqua.ttf", 48, 0, 250);
+    GameScreen currentScreen = STUDY_WAIT;
+
     SetTargetFPS(60);
 
-    // Main loop
-    while (!WindowShouldClose()) // Detects window close
+    while (!WindowShouldClose())
     {
         switch (currentScreen) {
-            case MAIN:
+            case STUDY_WAIT:
             {
                 if (sound_played == false) {
                     PlaySound(bonk);
                     sound_played = true;
                 }
 
-                if (IsKeyPressed(KEY_ENTER) || IsGestureDetected(GESTURE_TAP)) {
+                if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                     currentScreen = STUDY;
                     PlaySound(session_begin);
+                    sound_played = false;
                 }
             } break;
             case STUDY:
@@ -84,10 +88,18 @@ int main(void)
                     conversion(study_mins, &time);
                 }
                 if (study_mins == 0 || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    currentScreen = BREAK;
+                    currentScreen = BREAK_WAIT;
                     study_mins = STUDY_TIMER;
                     conversion(study_mins, &time);
                     PlaySound(session_end);
+                }
+            } break;
+            case BREAK_WAIT:
+            {
+                if (IsKeyPressed(KEY_SPACE) || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    currentScreen = BREAK;
+                    PlaySound(session_begin);
+                    sound_played = false;
                 }
             } break;
             case BREAK:
@@ -98,9 +110,8 @@ int main(void)
                     break_mins--;
                     conversion(break_mins, &time);
                 }
-                if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-                    currentScreen = MAIN;
-                    sound_played = false;
+                if (break_mins == 0 || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+                    currentScreen = STUDY_WAIT;
                     break_mins = BREAK_TIMER;
                     conversion(break_mins, &time);
                 } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
@@ -112,35 +123,42 @@ int main(void)
             default: break;
         }
 
-        // Drawing to screen
         BeginDrawing();
             ClearBackground(WHITE);
             switch (currentScreen) {
-                case MAIN:
+                case STUDY_WAIT:
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
-                    DrawTextEx(fontTtf, "New session!", (Vector2){ 20.0f, 40.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, "New session!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
                 } break;
                 case STUDY:
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
-                    DrawTextEx(fontTtf, "Study time!", (Vector2){ 20.0f, 40.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
-                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 20.0f, 100.0f }, (float)fontTtf.baseSize, 2, GOLD);
+                    DrawTextEx(fontTtf, "Study time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
+                    DrawTexture(inspo, SCREEN_W - inspo.width, SCREEN_H - inspo.height, WHITE);
+                } break;
+                case BREAK_WAIT:
+                {
+                    DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
+                    DrawTextEx(fontTtf, "Breaks are important..", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, "Please take one now :>", (Vector2){ 40.0f, SCREEN_H - 104.0f }, (float)fontTtf.baseSize, 2, GOLD);
                 } break;
                 case BREAK:
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
-                    DrawTextEx(fontTtf, "Break time!", (Vector2){ 20.0f, 40.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
-                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 20.0f, 100.0f }, (float)fontTtf.baseSize, 2, GOLD);
+                    DrawTextEx(fontTtf, "Break time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
                 } break;
                 default: break;
             }
-        /*DrawFPS(10, 10);*/
         EndDrawing();
     }
     UnloadFont(fontTtf);
     UnloadSound(session_begin);
     UnloadSound(session_end);
+    UnloadSound(bonk);
+    UnloadTexture(inspo);
 
     CloseAudioDevice();
     CloseWindow();
