@@ -3,3 +3,5 @@ main:
 
 clean:
 	rm -rf a.out
+run:
+	./a.out
