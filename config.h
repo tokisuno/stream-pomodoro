@@ -1,6 +1,6 @@
 // Dimensions of the window
 static const int SCREEN_W = 640;
-static const int SCREEN_H = 480;
+static const int SCREEN_H = 320;
 
 // Times are [ minutes * seconds ]
 static const int STUDY_TIMER = 50 * 60;
