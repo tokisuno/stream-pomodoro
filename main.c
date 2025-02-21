@@ -14,6 +14,8 @@
  *
  */
 
+// define two structs for each study_time method
+
 // Screen states
 typedef enum GameScreen {
     STUDY_WAIT,
@@ -47,7 +49,8 @@ int main(void)
     SetSoundVolume(session_end, 0.7f);
     SetSoundVolume(session_end, 0.8f);
 
-    struct t_time time;
+    struct t_time study_time;
+    struct t_time break_time;
 
     bool sound_played = false;
 
@@ -85,12 +88,12 @@ int main(void)
                 if (framesCounter == 60) {
                     framesCounter = 0;
                     study_mins--;
-                    conversion(study_mins, &time);
+                    conversion(study_mins, &study_time);
                 }
                 if (study_mins == 0 || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                     currentScreen = BREAK_WAIT;
                     study_mins = STUDY_TIMER;
-                    conversion(study_mins, &time);
+                    conversion(study_mins, &study_time);
                     PlaySound(session_end);
                 }
             } break;
@@ -108,12 +111,12 @@ int main(void)
                 if (framesCounter == 60) {
                     framesCounter = 0;
                     break_mins--;
-                    conversion(break_mins, &time);
+                    conversion(break_mins, &break_time);
                 }
                 if (break_mins == 0 || IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
                     currentScreen = STUDY_WAIT;
                     break_mins = BREAK_TIMER;
-                    conversion(break_mins, &time);
+                    conversion(break_mins, &break_time);
                 } else if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT)) {
                     PlaySound(session_begin);
                     currentScreen = STUDY;
@@ -134,8 +137,8 @@ int main(void)
                 case STUDY:
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
-                    DrawTextEx(fontTtf, "Study time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
-                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
+                    DrawTextEx(fontTtf, "Study study_time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", study_time.mins, study_time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
                     DrawTexture(inspo, SCREEN_W - inspo.width, SCREEN_H - inspo.height, WHITE);
                 } break;
                 case BREAK_WAIT:
@@ -148,7 +151,7 @@ int main(void)
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
                     DrawTextEx(fontTtf, "Break time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
-                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", time.mins, time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
+                    DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", break_time.mins, break_time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
                 } break;
                 default: break;
             }
