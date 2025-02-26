@@ -137,7 +137,7 @@ int main(void)
                 case STUDY:
                 {
                     DrawRectangle(0, 0, SCREEN_W, SCREEN_H, BLACK);
-                    DrawTextEx(fontTtf, "Study study_time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
+                    DrawTextEx(fontTtf, "Study time!", (Vector2){ 40.0f, 70.0f }, (float)fontTtf.baseSize + 3.0f, 2, YELLOW);
                     DrawTextEx(fontTtf, TextFormat("%.2d:%.2d", study_time.mins, study_time.secs), (Vector2){ 40.0f, 125.0f }, (float)fontTtf.baseSize, 2, GOLD);
                     DrawTexture(inspo, SCREEN_W - inspo.width, SCREEN_H - inspo.height, WHITE);
                 } break;
